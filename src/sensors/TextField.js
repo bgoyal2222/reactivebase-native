@@ -3,7 +3,7 @@ import { Input, Item } from "native-base";
 import { connect } from "react-redux";
 
 import { addComponent, removeComponent, watchComponent, updateQuery } from "../actions";
-import { isEqual, debounce, checkValueChange } from "../utils/helper";
+import { isEqual, debounce } from "../utils/helper";
 
 class TextField extends Component {
 	constructor(props) {
@@ -18,18 +18,14 @@ class TextField extends Component {
 	componentDidMount() {
 		this.props.addComponent(this.props.componentId);
 		this.setReact(this.props);
-
-		if (this.props.defaultSelected) {
-			this.setValue(this.props.defaultSelected, true);
-		}
+		this.updateQuery = debounce((value) => {
+			this.props.updateQuery(this.props.componentId, this.defaultQuery(value));
+		}, 300);
 	}
 
 	componentWillReceiveProps(nextProps) {
 		if (!isEqual(nextProps.react, this.props.react)) {
 			this.setReact(nextProps);
-		}
-		if (this.props.defaultSelected !== nextProps.defaultSelected) {
-			this.setValue(nextProps.defaultSelected, true);
 		}
 	}
 
@@ -43,7 +39,7 @@ class TextField extends Component {
 		}
 	}
 
-	defaultQuery = (value) => {
+	defaultQuery(value) {
 		if (value && value.trim() !== "") {
 			return {
 				[this.type]: {
@@ -54,39 +50,12 @@ class TextField extends Component {
 		return null;
 	}
 
-	handleTextChange = debounce((value) => {
+	setValue = (value) => {
+		this.setState({
+			currentValue: value
+		});
 		this.updateQuery(value);
-	}, 300);
-
-	setValue = (value, isDefaultValue = false) => {
-		const performUpdate = () => {
-			this.setState({
-				currentValue: value
-			});
-			if (isDefaultValue) {
-				this.updateQuery(value);
-			} else {
-				// debounce for handling text while typing
-				this.handleTextChange(value);
-			}
-		}
-		checkValueChange(
-			this.props.componentId,
-			value,
-			this.props.beforeValueChange,
-			this.props.onValueChange,
-			performUpdate
-		);
 	};
-
-	updateQuery = (value) => {
-		const query = this.props.customQuery || this.defaultQuery;
-		let callback = null;
-		if (this.props.onQueryChange) {
-			callback = this.props.onQueryChange;
-		}
-		this.props.updateQuery(this.props.componentId, query(value), callback);
-	}
 
 	render() {
 		return (
@@ -109,7 +78,7 @@ const mapDispatchtoProps = dispatch => ({
 	addComponent: component => dispatch(addComponent(component)),
 	removeComponent: component => dispatch(removeComponent(component)),
 	watchComponent: (component, react) => dispatch(watchComponent(component, react)),
-	updateQuery: (component, query, onQueryChange) => dispatch(updateQuery(component, query, onQueryChange))
+	updateQuery: (component, query) => dispatch(updateQuery(component, query))
 });
 
 export default connect(null, mapDispatchtoProps)(TextField);

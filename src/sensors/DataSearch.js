@@ -14,7 +14,7 @@ import {
 import { connect } from "react-redux";
 
 import { addComponent, removeComponent, watchComponent, updateQuery } from "../actions";
-import { isEqual, debounce, pushToAndClause, checkValueChange } from "../utils/helper";
+import { isEqual, debounce, pushToAndClause } from "../utils/helper";
 
 class DataSearch extends Component {
 	constructor(props) {
@@ -34,7 +34,7 @@ class DataSearch extends Component {
 		this.setReact(this.props);
 
 		if (this.props.defaultSelected) {
-			this.setValue(this.props.defaultSelected, true);
+			this.setDefaultValue(this.props.defaultSelected);
 		}
 	}
 
@@ -50,7 +50,7 @@ class DataSearch extends Component {
 			});
 		}
 		if (this.props.defaultSelected !== nextProps.defaultSelected) {
-			this.setValue(nextProps.defaultSelected, true);
+			this.setDefaultValue(nextProps.defaultSelected);
 		}
 	}
 
@@ -143,43 +143,67 @@ class DataSearch extends Component {
 		];
 	}
 
-	setValue = (value, isDefaultValue = false) => {
+	setValue = (value) => {
 		const performUpdate = () => {
+			if (this.props.onValueChange) {
+				this.props.onValueChange(value);
+			}
 			this.setState({
 				currentValue: value
 			});
-			if (isDefaultValue) {
+			// debounce for handling text while typing
+			debounce(() => {
 				if (this.props.autoSuggest) {
 					this.updateQuery(this.internalComponent, value);
+				} else {
+					this.updateQuery(this.props.componentId, value);
 				}
-				this.updateQuery(this.props.componentId, value);
-			} else {
-				// debounce for handling text while typing
-				this.handleTextChange(value);
-			}
+			}, 300)();
 		}
-		checkValueChange(
-			this.props.componentId,
-			value,
-			this.props.beforeValueChange,
-			this.props.onValueChange,
-			performUpdate
-		);
+		if (this.props.beforeValueChange) {
+			this.props.beforeValueChange(value)
+				.then(() => {
+					performUpdate();
+				})
+				.catch((e) => {
+					console.warn(`${this.props.componentId} - beforeValueChange rejected the promise with `, e);
+				});
+		} else {
+			performUpdate();
+		}
 	};
 
-	handleTextChange = debounce((value) => {
-		if (this.props.autoSuggest) {
-			this.updateQuery(this.internalComponent, value);
-		} else {
+	setDefaultValue = (value) => {
+		const performUpdate = () => {
+			if (this.props.onValueChange) {
+				this.props.onValueChange(value);
+			}
+			this.setState({
+				currentValue: value
+			});
+			if (this.props.autoSuggest) {
+				this.updateQuery(this.internalComponent, value);
+			}
 			this.updateQuery(this.props.componentId, value);
 		}
-	}, 300);
+		if (this.props.beforeValueChange) {
+			this.props.beforeValueChange(value)
+				.then(() => {
+					performUpdate();
+				})
+				.catch((e) => {
+					console.warn(`${this.props.componentId} - beforeValueChange rejected the promise with `, e);
+				});
+		} else {
+			performUpdate();
+		}
+	};
 
 	selectSuggestion = (value) => {
 		this.setState({
 			suggestions: []
 		});
-		this.setValue(value, true);
+		this.setDefaultValue(value);
 		this.toggleModal();
 	};
 

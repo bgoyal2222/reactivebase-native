@@ -1,18 +1,18 @@
 import React, { Component } from "react";
-import { Picker } from "native-base";
+import {Button,Icon,Text} from "native-base";
 import { connect } from "react-redux";
-
+import { View } from 'react-native';
 import { addComponent, removeComponent, watchComponent, updateQuery, setQueryOptions } from "../actions";
 import { isEqual, getQueryOptions, pushToAndClause } from "../utils/helper";
+//import PropTypes from 'prop-types';
 
-const Item = Picker.Item;
 
-class SingleDropdownList extends Component {
+class NumberBox extends Component {
 	constructor(props) {
 		super(props);
 
 		this.state = {
-			currentValue: "",
+			currentValue:0,
 			options: []
 		};
 		this.type = "Term";
@@ -36,8 +36,8 @@ class SingleDropdownList extends Component {
 				}
 			}
 		}
-		this.props.setQueryOptions(this.internalComponent, queryOptions);
-		this.props.updateQuery(this.internalComponent, null);
+		//this.props.setQueryOptions(this.internalComponent, queryOptions);
+		//this.props.updateQuery(this.internalComponent, null);
 	}
 
 	componentWillReceiveProps(nextProps) {
@@ -86,31 +86,41 @@ class SingleDropdownList extends Component {
 		this.setState({
 			currentValue: value
 		});
-		this.props.updateQuery(this.props.componentId, this.defaultQuery(value))
+		//this.props.updateQuery(this.props.componentId, this.defaultQuery(value))
 	};
 
 	render() {
 		return (
-			<Picker
-				iosHeader="Select one"
-				mode="dropdown"
-				placeholder={this.props.placeholder}
-				selectedValue={this.state.currentValue}
-				onValueChange={this.setValue}
-			>
-				{
-					this.state.options.map(item => (
-						<Picker.Item key={item.key} label={item.key} value={item.key} />
-					))
-				}
-			</Picker>
+			<View style={{flexDirection:'row',padding:5}}>
+				<Button light onPress={()=>this.setValue(this.state.currentValue-1)}>
+					<Icon name='md-remove' />
+				</Button>
+				<Text style={{padding:5}}>{this.state.currentValue}</Text>
+				<Button light disabled onPress={()=>this.setValue(this.state.currentValue+1)}>
+					<Icon name='md-add' />
+				</Button>
+			</View>
 		);
 	}
 }
-
-SingleDropdownList.defaultProps = {
-	size: 100,
-	placeholder: "Select a value"
+/*-------------Commented because eslint 4.x gives error issue with it but should use this */
+/*NumberBox.propTypes = {
+	componentId:PropTypes.string,
+	queryFormat:PropTypes.string,
+	dataField:PropTypes.string,
+	data:PropTypes.object,
+	title:PropTypes.string,
+  	defaultSelected:PropTypes.number,
+	labelPosition:PropTypes.string,
+	queryFormat:PropTypes.string,
+	showFilter:PropTypes.bool,
+	filterLabel:PropTypes.string,
+	URLParams:PropTypes.bool
+};*/
+NumberBox.defaultProps = {
+	queryFormat:"gte",
+	showFilter:true,
+	URLParams:false
 }
 
 const mapStateToProps = (state, props) => ({
@@ -121,8 +131,8 @@ const mapDispatchtoProps = dispatch => ({
 	addComponent: component => dispatch(addComponent(component)),
 	removeComponent: component => dispatch(removeComponent(component)),
 	watchComponent: (component, react) => dispatch(watchComponent(component, react)),
-	updateQuery: (component, query) => dispatch(updateQuery(component, query)),
-	setQueryOptions: (component, props) => dispatch(setQueryOptions(component, props))
+	//updateQuery: (component, query) => dispatch(updateQuery(component, query)),
+	//setQueryOptions: (component, props) => dispatch(setQueryOptions(component, props))
 });
 
-export default connect(mapStateToProps, mapDispatchtoProps)(SingleDropdownList);
+export default connect(mapStateToProps, mapDispatchtoProps)(NumberBox);

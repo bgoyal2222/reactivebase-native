@@ -15,7 +15,7 @@ import {
 } from "native-base";
 
 import { addComponent, removeComponent, watchComponent, updateQuery, setQueryOptions } from "../actions";
-import { isEqual, getQueryOptions, pushToAndClause, checkValueChange } from "../utils/helper";
+import { isEqual, getQueryOptions, pushToAndClause } from "../utils/helper";
 
 class MultiDropdownList extends Component {
 	constructor(props) {
@@ -53,10 +53,6 @@ class MultiDropdownList extends Component {
 		}
 		this.props.setQueryOptions(this.internalComponent, queryOptions);
 		this.props.updateQuery(this.internalComponent, null);
-
-		if (this.props.defaultSelected) {
-			this.selectItem(this.props.defaultSelected, true);
-		}
 	}
 
 	componentWillReceiveProps(nextProps) {
@@ -67,9 +63,6 @@ class MultiDropdownList extends Component {
 			this.setState({
 				options: nextProps.options[nextProps.dataField].buckets || []
 			});
-		}
-		if (this.props.defaultSelected !== nextProps.defaultSelected) {
-			this.selectItem(nextProps.defaultSelected, true);
 		}
 	}
 
@@ -88,7 +81,7 @@ class MultiDropdownList extends Component {
 		}
 	}
 
-	defaultQuery = (value) => {
+	defaultQuery(value) {
 		if (this.selectAll) {
 			return {
 				exists: {
@@ -120,32 +113,20 @@ class MultiDropdownList extends Component {
 		return null;
 	}
 
-	selectItem = (item, isDefaultValue = false) => {
+	selectItem = (item) => {
 		let { currentValue } = this.state;
 
-		if (isDefaultValue) {
-			currentValue = item;
+		if (currentValue.includes(item)) {
+			currentValue = currentValue.filter(value => value !== item);
 		} else {
-			if (currentValue.includes(item)) {
-				currentValue = currentValue.filter(value => value !== item);
-			} else {
-				currentValue = [ ...currentValue, item ];
-			}
-		}
-		const performUpdate = () => {
-			this.setState({
-				currentValue
-			});
-			this.updateQuery(currentValue);
+			currentValue.push(item);
 		}
 
-		checkValueChange(
-			this.props.componentId,
-			currentValue,
-			this.props.beforeValueChange,
-			this.props.onValueChange,
-			performUpdate
-		);
+		this.setState({
+			currentValue
+		});
+
+		this.props.updateQuery(this.props.componentId, this.defaultQuery(currentValue))
 	}
 
 	toggleModal = () => {
@@ -153,15 +134,6 @@ class MultiDropdownList extends Component {
 			showModal: !this.state.showModal
 		})
 	};
-
-	updateQuery = (value) => {
-		const query = this.props.customQuery || this.defaultQuery;
-		let callback = null;
-		if (this.props.onQueryChange) {
-			callback = this.props.onQueryChange;
-		}
-		this.props.updateQuery(this.props.componentId, query(value), callback);
-	}
 
 	render() {
 		return (
@@ -256,7 +228,7 @@ const mapDispatchtoProps = dispatch => ({
 	addComponent: component => dispatch(addComponent(component)),
 	removeComponent: component => dispatch(removeComponent(component)),
 	watchComponent: (component, react) => dispatch(watchComponent(component, react)),
-	updateQuery: (component, query, onQueryChange) => dispatch(updateQuery(component, query, onQueryChange)),
+	updateQuery: (component, query) => dispatch(updateQuery(component, query)),
 	setQueryOptions: (component, props) => dispatch(setQueryOptions(component, props))
 });
 
