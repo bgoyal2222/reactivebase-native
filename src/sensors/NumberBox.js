@@ -4,7 +4,7 @@ import { connect } from "react-redux";
 import { View } from 'react-native';
 import { addComponent, removeComponent, watchComponent, updateQuery, setQueryOptions } from "../actions";
 import { isEqual, getQueryOptions, pushToAndClause } from "../utils/helper";
-//import PropTypes from 'prop-types';
+
 
 
 class NumberBox extends Component {
@@ -86,7 +86,7 @@ class NumberBox extends Component {
 		this.setState({
 			currentValue: value
 		});
-		//this.props.updateQuery(this.props.componentId, this.defaultQuery(value))
+		this.props.updateQuery(this.props.componentId, this.defaultQuery(value))
 	};
 
 	render() {
@@ -103,23 +103,23 @@ class NumberBox extends Component {
 		);
 	}
 }
-/*-------------Commented because eslint 4.x gives error issue with it but should use this */
-/*NumberBox.propTypes = {
+NumberBox.propTypes = {
 	componentId:PropTypes.string,
 	queryFormat:PropTypes.string,
 	dataField:PropTypes.string,
 	data:PropTypes.object,
 	title:PropTypes.string,
-  	defaultSelected:PropTypes.number,
+  defaultSelected:PropTypes.number,
 	labelPosition:PropTypes.string,
 	queryFormat:PropTypes.string,
 	showFilter:PropTypes.bool,
 	filterLabel:PropTypes.string,
 	URLParams:PropTypes.bool
-};*/
+};
 NumberBox.defaultProps = {
 	queryFormat:"gte",
 	showFilter:true,
+	filterLabel:this.props.componentId,
 	URLParams:false
 }
 
