@@ -15,7 +15,7 @@ import {
 	RangeSlider,
 	ReactiveList,
 	NumberBox
-} from "reactivebase-native";
+} from "@appbaseio/reactivebase-native";
 
 
 export default class Main extends Component {
@@ -62,8 +62,15 @@ export default class Main extends Component {
 				<ScrollView>
 					<View style={{ padding: 10 }}>
 						<NumberBox
+							title={"NumberBox"}
 							componentId="NumberBox"
 							dataField="brand.raw"
+							data={
+								[{ "start": 0, "end": 100, "label": "Cheap" },
+									{ "start": 101, "end": 200, "label": "Moderate" },
+									{ "start": 201, "end": 500, "label": "Pricey" },
+									{ "start": 501, "end": 1000, "label": "First Date" }]
+							}
 						/>
 						<SingleDropdownList
 							componentId="SingleDropdownListComponent"
