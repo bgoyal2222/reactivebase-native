@@ -1,19 +1,18 @@
 import React, { Component } from "react";
 import { Button ,Icon ,Text } from "native-base";
 import { connect } from "react-redux";
-import { View } from "react-native";
+import { View ,FlatList } from "react-native";
 import { addComponent, removeComponent, watchComponent, updateQuery, setQueryOptions } from "../actions";
 import { isEqual, getQueryOptions, pushToAndClause } from "../utils/helper";
-
+import NumberBoxCard from "./NumberBoxCard.js";
 
 
 class NumberBox extends Component {
 	constructor(props) {
 		super(props);
-
 		this.state = {
 			currentValue:0,
-			options: []
+			options:this.props.data
 		};
 		this.type = "Term";
 		this.internalComponent = this.props.componentId + "__internal";
@@ -46,7 +45,7 @@ class NumberBox extends Component {
 		}
 		if (!isEqual(nextProps.options, this.props.options)) {
 			this.setState({
-				options: nextProps.options[nextProps.dataField].buckets || []
+				options: nextProps.data || []
 			});
 		}
 	}
@@ -93,16 +92,17 @@ class NumberBox extends Component {
 		return (
 			<View style={{ padding:5 }}>
 				<Text style={{ fontSize:16 ,fontWeight:"bold" }}>{this.props.title?this.props.title:""}</Text>
-				<View style={{ flexDirection:"row",paddingVertical:10,alignItem:"center" }}>
-					<Text style={{ alignSelf:"center",padding:10 }}>Guests</Text>
-					<Button light onPress={()=>this.setValue(this.state.currentValue-1)}>
-						<Icon name='md-remove' />
-					</Button>
-					<Text style={{ alignSelf:"center",padding:10 }}>{this.state.currentValue}</Text>
-					<Button light disabled onPress={()=>this.setValue(this.state.currentValue+1)}>
-						<Icon name='md-add' />
-					</Button>
-				</View>
+				<FlatList
+					data={this.state.options}
+					renderItem={({ item }) => (
+						<NumberBoxCard
+							start={item.start}
+							end={item.start}
+							label={item.label}
+							defaultSelected={this.props.defaultSelected}
+						/>
+					)}
+				/>
 			</View>
 		);
 	}

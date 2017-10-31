@@ -6,13 +6,12 @@ import { addComponent, removeComponent, watchComponent, updateQuery, setQueryOpt
 import { isEqual, getQueryOptions, pushToAndClause } from "../utils/helper";
 
 
-
-class NumberBox extends Component {
+class NumberBoxCard extends Component {
 	constructor(props) {
 		super(props);
 
 		this.state = {
-			currentValue:0,
+			currentValue:this.props.defaultSelected||0,
 			options: []
 		};
 		this.type = "Term";
@@ -40,7 +39,7 @@ class NumberBox extends Component {
 		//this.props.updateQuery(this.internalComponent, null);
 	}
 
-	componentWillReceiveProps(nextProps) {
+	/*componentWillReceiveProps(nextProps) {
 		if (!isEqual(nextProps.react, this.props.react)) {
 			this.setReact(nextProps);
 		}
@@ -50,7 +49,7 @@ class NumberBox extends Component {
 			});
 		}
 	}
-
+*/
 	componentWillUnmount() {
 		this.props.removeComponent(this.props.componentId);
 		this.props.removeComponent(this.internalComponent);
@@ -91,36 +90,22 @@ class NumberBox extends Component {
 
 	render() {
 		return (
-			<View style={{ padding:5 }}>
-				<Text style={{ fontSize:16 ,fontWeight:"bold" }}>{this.props.title?this.props.title:""}</Text>
-				<View style={{ flexDirection:"row",paddingVertical:10,alignItem:"center" }}>
-					<Text style={{ alignSelf:"center",padding:10 }}>Guests</Text>
-					<Button light onPress={()=>this.setValue(this.state.currentValue-1)}>
-						<Icon name='md-remove' />
-					</Button>
-					<Text style={{ alignSelf:"center",padding:10 }}>{this.state.currentValue}</Text>
-					<Button light disabled onPress={()=>this.setValue(this.state.currentValue+1)}>
-						<Icon name='md-add' />
-					</Button>
-				</View>
+			<View style={{ flexDirection:"row",paddingVertical:10,alignItem:"center" }}>
+				<Text style={{ alignSelf:"center",padding:10 }}>{this.props.label}</Text>
+				<Button light onPress={()=>this.setValue(this.state.currentValue-1)}>
+					<Icon name='md-remove' />
+				</Button>
+				<Text style={{ alignSelf:"center",padding:10 }}>{this.state.currentValue}</Text>
+				<Button light disabled onPress={()=>this.setValue(this.state.currentValue+1)}>
+					<Icon name='md-add' />
+				</Button>
 			</View>
+			
 		);
 	}
 }
-// NumberBox.propTypes = {
-// 	componentId:PropTypes.string,
-// 	queryFormat:PropTypes.string,
-// 	dataField:PropTypes.string,
-// 	data:PropTypes.object,
-// 	title:PropTypes.string,
-//  defaultSelected:PropTypes.number,
-// 	labelPosition:PropTypes.string,
-// 	queryFormat:PropTypes.string,
-// 	showFilter:PropTypes.bool,
-// 	filterLabel:PropTypes.string,
-// 	URLParams:PropTypes.bool
-// };
-NumberBox.defaultProps = {
+
+NumberBoxCard.defaultProps = {
 	queryFormat:"gte",
 	showFilter:true,
 	//filterLabel:this.props.componentId,
@@ -139,4 +124,4 @@ const mapDispatchtoProps = dispatch => ({
 	//setQueryOptions: (component, props) => dispatch(setQueryOptions(component, props))
 });
 
-export default connect(mapStateToProps, mapDispatchtoProps)(NumberBox);
+export default connect(mapStateToProps, mapDispatchtoProps)(NumberBoxCard);
