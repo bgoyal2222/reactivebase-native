@@ -134,7 +134,7 @@ const mapStateToProps = (state, props) => ({
 const mapDispatchtoProps = dispatch => ({
 	addComponent: component => dispatch(addComponent(component)),
 	removeComponent: component => dispatch(removeComponent(component)),
-	watchComponent: (component, react) => dispatch(watchComponent(component, react)),
+	watchComponent: (component, react) => dispatch(watchComponent(component, react))
 	//updateQuery: (component, query) => dispatch(updateQuery(component, query)),
 	//setQueryOptions: (component, props) => dispatch(setQueryOptions(component, props))
 });
