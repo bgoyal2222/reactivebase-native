@@ -1,8 +1,9 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { FlatList, View } from "react-native";
+import { View } from "react-native";
 import { Text, Spinner, Button, Icon } from "native-base";
 
+import List from "./addons/List";
 import { addComponent, removeComponent, watchComponent, setQueryOptions, loadMore } from "../actions";
 import { isEqual, getQueryOptions } from "../utils/helper";
 
@@ -30,7 +31,9 @@ class ReactiveList extends Component {
 			this.setReact(nextProps);
 		}
 		if (!nextProps.pagination && nextProps.hits && this.props.hits && nextProps.hits.length < this.props.hits.length) {
-			this.refs.listRef.scrollToOffset({ x: 0, y: 0, animated: false });
+			if (this.listRef) {
+				this.listRef.scrollToOffset({ x: 0, y: 0, animated: false });
+			}
 			this.setState({
 				from: 0,
 				isLoading: false
@@ -55,7 +58,8 @@ class ReactiveList extends Component {
 	}
 
 	loadMore = () => {
-		if (this.props.hits && !this.props.pagination) {
+		console.log("called", this.props.componentId);
+		if (this.props.hits && !this.props.pagination && this.props.total !== this.props.hits.length) {
 			const value = this.state.from + this.props.size;
 			const options = getQueryOptions(this.props);
 			this.setState({
@@ -66,6 +70,10 @@ class ReactiveList extends Component {
 				...options,
 				from: value
 			}, true);
+		} else if (this.state.isLoading) {
+			this.setState({
+				isLoading: false
+			});
 		}
 	};
 
@@ -111,7 +119,7 @@ class ReactiveList extends Component {
 					<Text>{i}</Text>
 				</Button>
 			);
-			if (i <= this.state.totalPages) {
+			if (i <= this.state.totalPages+1) {
 				pages.push(pageBtn);
 			}
 		}
@@ -133,11 +141,15 @@ class ReactiveList extends Component {
 				{
 					pages
 				}
-				<Button light disabled={this.state.currentPage >= this.state.totalPages} onPress={this.nextPage}>
+				<Button light disabled={this.state.currentPage >= this.state.totalPages-1} onPress={this.nextPage}>
 					<Icon name="ios-arrow-forward" />
 				</Button>
 			</View>
 		)
+	}
+
+	setRef = (node) => {
+		this.listRef = node;
 	}
 
 	render() {
@@ -148,13 +160,10 @@ class ReactiveList extends Component {
 						? this.renderPagination()
 						: null
 				}
-				<FlatList
-					ref="listRef"
-					style={{ width: "100%" }}
-					data={this.props.hits ? this.props.hits : []}
-					keyExtractor={(item) => item._id}
-					renderItem={({ item }) => this.props.onData(item)}
-					onEndReachedThreshold={0.5}
+				<List
+					setRef={this.setRef}
+					data={this.props.hits}
+					onData={this.props.onData}
 					onEndReached={this.loadMore}
 				/>
 				{

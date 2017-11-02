@@ -13,8 +13,9 @@ import {
 	SingleDropdownRange,
 	MultiDropdownRange,
 	RangeSlider,
-	ReactiveList,
-	NumberBox
+	NumberBox,
+	DatePicker,
+	ReactiveList
 } from "@appbaseio/reactivebase-native";
 
 
@@ -35,6 +36,7 @@ export default class Main extends Component {
 
 	onData(item) {
 		const { _source: data } = item;
+		console.log("Data", item);
 		return (
 			<View style={{ margin: 5 }}>
 				<Text style={{ flex: 1, fontWeight: "bold" }}>{data.name}</Text>
@@ -127,6 +129,7 @@ export default class Main extends Component {
 							dataField="color"
 							placeholder="Search color"
 						/>
+						<DatePicker />
 						<DataController
 							componentId="DataController"
 							onQueryChange={(prev, next) => {
